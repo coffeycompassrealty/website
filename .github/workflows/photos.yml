@@ -9,14 +9,13 @@ jobs:
   photos:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Download and size photos
         run: |
           mkdir -p img/listings
           while read -r id path; do
             [ -z "$id" ] && continue
-            curl -fsSL "https://mibor-assets.cdn-connectmls.com/pics/$path" -o /tmp/p.jpg || { echo "skip $id"; continue; }
-            convert /tmp/p.jpg -resize 640x480^ -gravity center -extent 640x480 -quality 82 "img/listings/$id.jpg"
+            curl -fsSL "https://mibor-assets.cdn-connectmls.com/pics/$path" -o "img/listings/$id.jpg" || echo "skip $id"
           done < photos.txt
       - name: Commit
         run: |

@@ -1,0 +1,27 @@
+name: Pull listing photos
+on:
+  workflow_dispatch:
+  push:
+    paths: ['photos.txt']
+permissions:
+  contents: write
+jobs:
+  photos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download and size photos
+        run: |
+          mkdir -p img/listings
+          while read -r id path; do
+            [ -z "$id" ] && continue
+            curl -fsSL "https://mibor-assets.cdn-connectmls.com/pics/$path" -o /tmp/p.jpg || { echo "skip $id"; continue; }
+            convert /tmp/p.jpg -resize 640x480^ -gravity center -extent 640x480 -quality 82 "img/listings/$id.jpg"
+          done < photos.txt
+      - name: Commit
+        run: |
+          git config user.name "coffeycompassrealty"
+          git config user.email "coffeycompass@users.noreply.github.com"
+          git add img/listings
+          git diff --cached --quiet || git commit -m "Update listing photos"
+          git push

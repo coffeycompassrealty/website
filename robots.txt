@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://coffeycompassrealtygroup.com/sitemap.xml

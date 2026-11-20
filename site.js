@@ -7,6 +7,7 @@
     ['areas.html', 'Areas', 'areas'],
     ['about.html', 'Our Team', 'about'],
     ['community.html', 'Community', 'community'],
+    ['podcast.html', 'Podcast', 'podcast'],
     ['corners.html', 'Journal', 'corners']
   ];
   var nav = links.map(function (l) {
@@ -37,7 +38,7 @@
       '<div><a class="logo" href="index.html"><img src="img/logo.webp" alt="Coffey Compass Realty Group"></a>' +
       '<p style="margin-top:22px;max-width:300px">A family real estate team serving Mooresville and central Indiana.</p></div>' +
       '<div><h5>Contact</h5><ul><li>Mark: <a href="tel:13174009258">317-400-9258</a></li><li>Patsy: <a href="tel:13172813413">317-281-3413</a></li><li><a href="mailto:markcoffey@kw.com">markcoffey@kw.com</a></li><li>350 E. High St<br>Mooresville, IN 46158</li></ul></div>' +
-      '<div><h5>Explore</h5><ul><li><a href="search.html">Search all homes</a></li><li><a href="listings.html">Our listings</a></li><li><a href="index.html#sold">Recently sold</a></li><li><a href="land.html">Selling land</a></li><li><a href="expired.html">Listing expired?</a></li><li><a href="about.html">Our team</a></li><li><a href="community.html">Community</a></li><li><a href="corners.html">Journal</a></li></ul></div>' +
+      '<div><h5>Explore</h5><ul><li><a href="search.html">Search all homes</a></li><li><a href="listings.html">Our listings</a></li><li><a href="index.html#sold">Recently sold</a></li><li><a href="land.html">Selling land</a></li><li><a href="expired.html">Listing expired?</a></li><li><a href="about.html">Our team</a></li><li><a href="community.html">Community</a></li><li><a href="podcast.html">Podcast</a></li><li><a href="corners.html">Journal</a></li></ul></div>' +
       '<div><h5>Areas</h5><ul><li><a href="mooresville.html">Mooresville</a></li><li><a href="martinsville.html">Martinsville</a></li><li><a href="indianapolis.html">Indianapolis</a></li><li><a href="greenwood.html">Greenwood</a></li><li><a href="hendricks-county.html">Plainfield &amp; Hendricks Co.</a></li><li><a href="https://search.google.com/local/reviews?placeid=ChIJc22aI9ujbIgRrxVjRH2wT7s" target="_blank" rel="noopener">Google reviews</a></li></ul></div>' +
       '</div>' +
       '<div class="legal"><div>Coffey Compass Realty Group, Keller Williams Indy Metro Partners. Each Keller Williams office is independently owned and operated. Equal Housing Opportunity.</div>' +

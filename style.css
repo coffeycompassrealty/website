@@ -443,3 +443,15 @@ section.lst{padding:28px 0 90px}
 .qs-box input{flex:1;min-width:0;padding:15px 16px;border:1px solid var(--ink);border-right:0;font:400 16px var(--sans);background:#fff;border-radius:0}
 .qs-box .btn{padding:0 24px}
 .qs-hint{font-size:13px;color:var(--muted);margin:0 0 22px}
+
+/* Podcast */
+.pod-video{position:relative;padding-top:56.25%;margin-top:32px;background:#000}
+.pod-video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.pod-sponsors{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;margin-top:28px}
+.pod-sponsor{background:#fff;border:1px solid var(--line);padding:28px}
+.pod-sponsor h3{font-size:26px;margin-bottom:8px}
+.pod-sponsor p{color:var(--muted);margin:0 0 14px}
+.pod-band{background:var(--ink);color:#fff}
+.pod-band h2{color:#fff}
+.pod-band .sub{color:#cfd2d6}
+@media (max-width:760px){.pod-links .btn{width:100%;justify-content:center}}

@@ -53,6 +53,12 @@
       var msg = f.querySelector('.form-msg');
       var fd = new FormData(f);
       if (!fd.get('phone') && !fd.get('email')) { msg.textContent = 'Please add a phone number or email so we can reach you.'; return; }
+      if (f.hasAttribute('data-criteria')) {
+        var parts = [];
+        f.querySelectorAll('[data-crit]').forEach(function (el) { if (el.value) parts.push(el.getAttribute('data-crit') + ': ' + el.value); });
+        var extra = fd.get('notes') ? ' Notes: ' + fd.get('notes') : '';
+        fd.set('notes', 'Listing alert request. ' + parts.join('; ') + '.' + extra);
+      }
       fd.append('source', f.getAttribute('data-source') || location.pathname);
       var btn = f.querySelector('button'); btn.disabled = true; btn.textContent = 'Sending...';
       fetch(HOOK, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(fd) })
@@ -76,6 +82,119 @@
       if (n && !n.value) n.value = a.getAttribute('data-ask');
     });
   });
+
+  // Phone call / text / search bar
+  if (!document.querySelector('.callbar')) {
+    var cb = document.createElement('div');
+    cb.className = 'callbar';
+    cb.innerHTML = '<a href="tel:13174009258">Call</a><a href="sms:13174009258">Text</a><a class="hot" href="search.html">Search</a>';
+    document.body.appendChild(cb);
+  }
+
+  // Listing photo gallery + full-screen viewer
+  var gal = document.querySelector('.gallery');
+  if (gal) {
+    var photos = JSON.parse(gal.getAttribute('data-photos') || '[]');
+    var mainImg = gal.querySelector('.g-main img');
+    var count = gal.querySelector('.g-count');
+    var thumbs = gal.querySelectorAll('.g-thumb');
+    var lb = document.querySelector('.lightbox');
+    var lbImg = lb.querySelector('img'), lbCount = lb.querySelector('.lb-count');
+    var cur = 0;
+    function show(i) {
+      cur = (i + photos.length) % photos.length;
+      mainImg.src = photos[cur];
+      count.textContent = (cur + 1) + ' / ' + photos.length;
+      lbImg.src = photos[cur];
+      lbCount.textContent = (cur + 1) + ' / ' + photos.length;
+      thumbs.forEach(function (t, j) { t.classList.toggle('on', j === cur); });
+      if (thumbs[cur] && thumbs[cur].scrollIntoView) {
+        var strip = gal.querySelector('.g-strip');
+        strip.scrollTo({ left: thumbs[cur].offsetLeft - strip.offsetLeft - 20, behavior: 'smooth' });
+      }
+      new Image().src = photos[(cur + 1) % photos.length];
+    }
+    function open() { lb.hidden = false; document.body.style.overflow = 'hidden'; show(cur); }
+    function close() { lb.hidden = true; document.body.style.overflow = ''; }
+    gal.querySelector('.g-prev').onclick = function () { show(cur - 1); };
+    gal.querySelector('.g-next').onclick = function () { show(cur + 1); };
+    gal.querySelector('.g-full').onclick = open;
+    mainImg.onclick = open;
+    thumbs.forEach(function (t) { t.onclick = function () { show(+t.getAttribute('data-i')); }; });
+    lb.querySelector('.lb-x').onclick = close;
+    lb.querySelector('.lb-prev').onclick = function () { show(cur - 1); };
+    lb.querySelector('.lb-next').onclick = function () { show(cur + 1); };
+    lb.onclick = function (e) { if (e.target === lb) close(); };
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowLeft') show(cur - 1);
+      else if (e.key === 'ArrowRight') show(cur + 1);
+      else if (e.key === 'Escape') close();
+    });
+    [gal.querySelector('.g-main'), lb].forEach(function (el) {
+      var x0 = null;
+      el.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+      el.addEventListener('touchend', function (e) {
+        if (x0 === null) return;
+        var dx = e.changedTouches[0].clientX - x0;
+        if (Math.abs(dx) > 40) show(cur + (dx < 0 ? 1 : -1));
+        x0 = null;
+      });
+    });
+    show(0);
+  }
+
+  // Long descriptions: show a few lines with Read more on phones
+  var rm = document.querySelector('[data-clamp]');
+  if (rm && window.innerWidth < 760 && rm.scrollHeight > 260) {
+    rm.classList.add('clamp');
+    var mb = document.createElement('button');
+    mb.className = 'more-btn'; mb.type = 'button'; mb.textContent = 'Read more';
+    mb.onclick = function () { rm.classList.remove('clamp'); mb.remove(); };
+    rm.parentNode.insertBefore(mb, rm.nextSibling);
+  }
+
+  // Search page: quick searches load inside the page
+  var frame = document.querySelector('.idx-frame iframe');
+  if (frame) {
+    var mode = 'homes';
+    var now = document.querySelector('.idx-now');
+    function go(btn) {
+      var url = btn.getAttribute('data-' + mode) || btn.getAttribute('data-homes');
+      if (!url) return;
+      frame.src = url;
+      document.querySelectorAll('.chips button').forEach(function (b) { b.classList.remove('on'); });
+      btn.classList.add('on');
+      window.__lastPick = btn;
+      if (now) now.textContent = 'Showing ' + (mode === 'land' ? 'land' : 'homes') + ' near ' + btn.textContent + '. Zoom the map or use the filters to narrow it down.';
+      document.querySelector('.idx-frame').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    document.querySelectorAll('.chips button').forEach(function (b) { b.addEventListener('click', function () { go(b); }); });
+    var box = document.querySelector('.qs-box');
+    if (box) box.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var v = box.q.value.trim();
+      if (!v) return;
+      var q = v;
+      if (!/^\d{5}$/.test(v) && !/(,\s*in\b|indiana)/i.test(v)) q = v + ', IN';
+      var base = 'https://markcoffey.kw.com/search/sale?q=' + encodeURIComponent(q);
+      var fake = document.createElement('button');
+      fake.setAttribute('data-homes', base);
+      fake.setAttribute('data-land', base + '&property_subtype=LOTSANDLAND');
+      fake.textContent = v;
+      go(fake);
+      if (/school/i.test(v) && now) now.textContent += ' For an exact school district search, use the "Send me new listings" form below and we will set it up straight from the MLS.';
+    });
+    document.querySelectorAll('.toggle button').forEach(function (t) {
+      t.addEventListener('click', function () {
+        mode = t.getAttribute('data-mode');
+        document.querySelectorAll('.toggle button').forEach(function (x) { x.classList.toggle('on', x === t); });
+        var on = window.__lastPick || document.querySelector('.chips button.on');
+        if (on) go(on);
+        var alertType = document.querySelector('form [name=looking_for]');
+        if (alertType) alertType.value = mode === 'land' ? 'Land' : 'A home';
+      });
+    });
+  }
 
   // Post feeds: any element with data-feed="category1,category2" and optional data-limit
   var feeds = document.querySelectorAll('[data-feed]');
